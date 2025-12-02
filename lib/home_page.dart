@@ -26,7 +26,6 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Ícone Gigante
             Icon(
               Icons.receipt_long_rounded,
               size: 100,
