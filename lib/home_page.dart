@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'create_receipt_page.dart';
+import 'settings_page.dart';
 import 'history_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,6 +17,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     const HistoryPage(),
     const HomeContent(),
+    const SettingsPage(),
     const Center(child: Text("Configurações em breve...")),
   ];
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart'; // <--- Importante
+import 'package:hive_flutter/hive_flutter.dart';
 import 'home_page.dart';
 
 void main() async {
@@ -10,6 +10,7 @@ void main() async {
 
   // Abre uma tabela para guardar os recibos
   await Hive.openBox('receipts');
+  await Hive.openBox('settings');
 
   runApp(const FaturaeApp());
 }

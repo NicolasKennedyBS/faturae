@@ -4,7 +4,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'pdf_util.dart';
 
 class CreateReceiptPage extends StatefulWidget {
-  const CreateReceiptPage({super.key});
+  final Map? receiptToEdit;
+  final int? hiveKey;
+
+  const CreateReceiptPage({super.key, this.receiptToEdit, this.hiveKey});
 
   @override
   State<CreateReceiptPage> createState() => _CreateReceiptPageState();
@@ -20,14 +23,28 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
   @override
   void initState() {
     super.initState();
-    _dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+
+    if (widget.receiptToEdit != null) {
+      _issuerController.text = widget.receiptToEdit!['issuer'];
+      _clientController.text = widget.receiptToEdit!['client'];
+      _serviceController.text = widget.receiptToEdit!['service'];
+      _valueController.text = widget.receiptToEdit!['value'];
+      _dateController.text = widget.receiptToEdit!['date'];
+    } else {
+      _dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+      var settingsBox = Hive.box('settings');
+      _issuerController.text = settingsBox.get('default_name', defaultValue: '');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Novo Recibo", style: TextStyle(color: Colors.white)),
+        title: Text(
+            widget.receiptToEdit != null ? "Editar Recibo" : "Novo Recibo",
+            style: const TextStyle(color: Colors.white)
+        ),
         backgroundColor: Theme.of(context).colorScheme.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -46,7 +63,7 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
               child: TextField(
                 controller: _issuerController,
                 decoration: const InputDecoration(
-                  labelText: "Quem está emitindo? (Seu Nome/Empresa)",
+                  labelText: "Quem está emitindo?",
                   border: InputBorder.none,
                   icon: Icon(Icons.badge, color: Colors.blue),
                 ),
@@ -89,8 +106,11 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
                   }
                   _showModelSelection(context);
                 },
-                icon: const Icon(Icons.picture_as_pdf),
-                label: const Text("GERAR DOCUMENTO", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                icon: const Icon(Icons.check),
+                label: Text(
+                    widget.receiptToEdit != null ? "SALVAR E GERAR PDF" : "GERAR DOCUMENTO",
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                ),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green[700], foregroundColor: Colors.white),
               ),
             ),
@@ -153,19 +173,17 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: () {
           Navigator.pop(context);
-          _generatePdf(style);
+          _saveAndGeneratePdf(style);
         },
       ),
     );
   }
 
-  // -- Função Atualizada com Hive e Share --
-  void _generatePdf(ReceiptStyle style) async {
-
+  void _saveAndGeneratePdf(ReceiptStyle style) async {
     var box = Hive.box('receipts');
 
     final receiptData = {
-      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'id': widget.receiptToEdit != null ? widget.receiptToEdit!['id'] : DateTime.now().millisecondsSinceEpoch.toString(), // Mantém ID se editando
       'issuer': _issuerController.text,
       'client': _clientController.text,
       'service': _serviceController.text,
@@ -175,9 +193,17 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
       'createdAt': DateTime.now().toString(),
     };
 
-    await box.add(receiptData);
-    print("Salvo no histórico! Total: ${box.length}");
+    if (widget.hiveKey != null) {
+      await box.put(widget.hiveKey, receiptData);
+      print("Recibo atualizado!");
+    } else {
+      await box.add(receiptData);
+      print("Recibo criado!");
+    }
 
+    if (mounted && widget.hiveKey != null) {
+      Navigator.pop(context);
+    }
 
     await PdfUtil.generateAndShare(
       issuerName: _issuerController.text,
