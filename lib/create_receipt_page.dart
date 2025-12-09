@@ -90,9 +90,12 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.receiptToEdit != null ? "Editar Documento" : "Novo Documento", style: const TextStyle(color: Colors.white)),
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          widget.receiptToEdit != null ? "Editar Documento" : "Novo Documento",
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         elevation: 0,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
