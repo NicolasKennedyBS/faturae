@@ -14,14 +14,12 @@ class CreateReceiptPage extends StatefulWidget {
 }
 
 class _CreateReceiptPageState extends State<CreateReceiptPage> {
-
   final _issuerController = TextEditingController();
   final _pixController = TextEditingController();
   final _clientController = TextEditingController();
+  final _descriptionController = TextEditingController();
   final _valueController = TextEditingController();
   final _dateController = TextEditingController();
-
-  final _descriptionController = TextEditingController();
   final _qtyController = TextEditingController(text: '1');
   final _unitPriceController = TextEditingController();
   final _codeController = TextEditingController();
@@ -32,12 +30,10 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
   @override
   void initState() {
     super.initState();
-
     _qtyController.addListener(_calculateTotal);
     _unitPriceController.addListener(_calculateTotal);
 
     if (widget.receiptToEdit != null) {
-
       final r = widget.receiptToEdit!;
       _issuerController.text = r['issuer'];
       _pixController.text = r['pix'] ?? '';
@@ -55,7 +51,6 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
       } else {
         _descriptionController.text = r['service'];
       }
-
     } else {
       _dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
       var settingsBox = Hive.box('settings');
@@ -76,9 +71,7 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
       double qty = double.tryParse(_qtyController.text) ?? 0;
       String cleanPrice = _unitPriceController.text.replaceAll('R\$', '').replaceAll('.', '').replaceAll(',', '.');
       double price = double.tryParse(cleanPrice) ?? 0;
-
       double total = qty * price;
-
       if (total > 0) {
         final formatter = NumberFormat("#,##0.00", "pt_BR");
         _valueController.text = formatter.format(total);
@@ -88,11 +81,16 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final inputFillColor = isDark ? Colors.grey[800] : Colors.white;
+    final readOnlyFillColor = isDark ? Colors.grey[900] : Colors.grey[200];
+    final toggleSelectedColor = isDark ? Colors.grey[700] : colorScheme.primary;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Text(widget.receiptToEdit != null ? "Editar Documento" : "Novo Documento", style: const TextStyle(color: Colors.white)),
-        backgroundColor: Theme.of(context).colorScheme.primary,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),
@@ -101,12 +99,11 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: inputFillColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border.all(color: Colors.grey.withOpacity(0.2)),
               ),
               child: Row(
                 children: [
@@ -116,7 +113,7 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: !_isProduct ? Theme.of(context).colorScheme.primary : Colors.transparent,
+                          color: !_isProduct ? toggleSelectedColor : Colors.transparent,
                           borderRadius: const BorderRadius.horizontal(left: Radius.circular(11)),
                         ),
                         child: Text(
@@ -133,7 +130,7 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: _isProduct ? Theme.of(context).colorScheme.primary : Colors.transparent,
+                          color: _isProduct ? toggleSelectedColor : Colors.transparent,
                           borderRadius: const BorderRadius.horizontal(right: Radius.circular(11)),
                         ),
                         child: Text(
@@ -152,20 +149,34 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
             Container(
               padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
-                color: Colors.blue.shade50,
+                color: isDark ? const Color(0xFF1E2228) : Colors.blue.shade50,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blue.shade100),
+                border: Border.all(
+                    color: isDark ? Colors.blue.withOpacity(0.2) : Colors.blue.shade100
+                ),
               ),
               child: Column(
                 children: [
                   TextField(
                     controller: _issuerController,
-                    decoration: const InputDecoration(labelText: "Quem está emitindo?", border: InputBorder.none, icon: Icon(Icons.store, color: Colors.blue)),
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                    decoration: InputDecoration(
+                        labelText: "Quem está emitindo?",
+                        labelStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[700]),
+                        border: InputBorder.none,
+                        icon: Icon(Icons.store, color: colorScheme.primary)
+                    ),
                   ),
-                  const Divider(),
+                  Divider(color: isDark ? Colors.grey[700] : Colors.grey[300]),
                   TextField(
                     controller: _pixController,
-                    decoration: const InputDecoration(labelText: "Chave Pix (Opcional)", border: InputBorder.none, icon: Icon(Icons.pix, color: Colors.green)),
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                    decoration: InputDecoration(
+                        labelText: "Chave Pix (Opcional)",
+                        labelStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[700]),
+                        border: InputBorder.none,
+                        icon: const Icon(Icons.pix, color: Colors.green)
+                    ),
                   ),
                 ],
               ),
@@ -177,11 +188,11 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
 
             TextField(
               controller: _clientController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: "Nome do Cliente",
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.person),
-                filled: true, fillColor: Colors.white,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.person),
+                filled: true, fillColor: inputFillColor,
               ),
             ),
             const SizedBox(height: 15),
@@ -189,92 +200,36 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
             if (_isProduct) ...[
               Row(
                 children: [
-                  Expanded(
-                    flex: 2,
-                    child: TextField(
-                      controller: _codeController,
-                      decoration: const InputDecoration(
-                        labelText: "Cód.",
-                        hintText: "001",
-                        border: OutlineInputBorder(),
-                        filled: true, fillColor: Colors.white,
-                      ),
-                    ),
-                  ),
+                  Expanded(flex: 2, child: TextField(controller: _codeController, decoration: InputDecoration(labelText: "Cód.", hintText: "001", border: const OutlineInputBorder(), filled: true, fillColor: inputFillColor))),
                   const SizedBox(width: 10),
-                  Expanded(
-                    flex: 2,
-                    child: TextField(
-                      controller: _unitController,
-                      decoration: const InputDecoration(
-                        labelText: "Un.",
-                        hintText: "UN",
-                        border: OutlineInputBorder(),
-                        filled: true, fillColor: Colors.white,
-                      ),
-                    ),
-                  ),
+                  Expanded(flex: 2, child: TextField(controller: _unitController, decoration: InputDecoration(labelText: "Un.", hintText: "UN", border: const OutlineInputBorder(), filled: true, fillColor: inputFillColor))),
                   const SizedBox(width: 10),
-                  Expanded(
-                    flex: 3,
-                    child: TextField(
-                      controller: _qtyController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: "Qtd",
-                        border: OutlineInputBorder(),
-                        filled: true, fillColor: Colors.white,
-                      ),
-                    ),
-                  ),
+                  Expanded(flex: 3, child: TextField(controller: _qtyController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: "Qtd", border: const OutlineInputBorder(), filled: true, fillColor: inputFillColor))),
                 ],
               ),
               const SizedBox(height: 15),
 
               Row(
                 children: [
-                  Expanded(
-                    flex: 2,
-                    child: TextField(
-                      controller: _descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: "Nome do Produto",
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.shopping_bag_outlined),
-                        filled: true, fillColor: Colors.white,
-                      ),
-                    ),
-                  ),
+                  Expanded(flex: 2, child: TextField(controller: _descriptionController, decoration: InputDecoration(labelText: "Nome do Produto", border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.shopping_bag_outlined), filled: true, fillColor: inputFillColor))),
                   const SizedBox(width: 10),
-                  Expanded(
-                    flex: 1,
-                    child: TextField(
-                      controller: _unitPriceController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: "Unit. (R\$)",
-                        border: OutlineInputBorder(),
-                        filled: true, fillColor: Colors.white,
-                      ),
-                    ),
-                  ),
+                  Expanded(flex: 1, child: TextField(controller: _unitPriceController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: "Unit. (R\$)", border: const OutlineInputBorder(), filled: true, fillColor: inputFillColor))),
                 ],
               ),
             ] else ...[
               TextField(
                 controller: _descriptionController,
                 maxLines: 3,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: "Descrição do Serviço",
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.build),
-                  filled: true, fillColor: Colors.white,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.build),
+                  filled: true, fillColor: inputFillColor,
                 ),
               ),
             ],
 
             const SizedBox(height: 15),
-
             Row(
               children: [
                 Expanded(
@@ -288,7 +243,7 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.attach_money),
                       filled: true,
-                      fillColor: _isProduct ? Colors.grey.shade200 : Colors.white,
+                      fillColor: _isProduct ? readOnlyFillColor : inputFillColor,
                     ),
                   ),
                 ),
@@ -296,11 +251,11 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
                 Expanded(
                   child: TextField(
                     controller: _dateController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: "Data",
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.calendar_today),
-                      filled: true, fillColor: Colors.white,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.calendar_today),
+                      filled: true, fillColor: inputFillColor,
                     ),
                   ),
                 ),
@@ -330,38 +285,77 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
   }
 
   void _showModelSelection(BuildContext context) {
+    final modalColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: modalColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           padding: const EdgeInsets.all(20),
-          height: MediaQuery.of(context).size.height * 0.7,
+          height: MediaQuery.of(context).size.height * 0.8,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(child: Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10)))),
               const SizedBox(height: 20),
-              const Text("Escolha o Layout", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Escolha o Layout", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor)),
+                  IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+                ],
+              ),
+
               const SizedBox(height: 10),
+
               Expanded(
                 child: ListView(
                   children: [
-                    _buildModelOption(context, "DANFE (Nota Fiscal)", "Estilo oficial com código de barras", Icons.receipt_long, Colors.blueGrey, ReceiptStyle.danfe),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Text("Essenciais", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                    ),
+                    _buildModelOption(context, "DANFE (Nota Fiscal)", "Estilo oficial", Icons.receipt_long, Colors.blueGrey, ReceiptStyle.danfe),
+                    _buildModelOption(context, "Simples", "Econômico (P&B)", Icons.description_outlined, Colors.grey, ReceiptStyle.simple),
                     _buildModelOption(context, "Executivo", "Azul Profissional", Icons.business, Colors.blue[800]!, ReceiptStyle.modern),
-                    _buildModelOption(context, "Tech Dev", "Hacker", Icons.terminal, Colors.green, ReceiptStyle.tech),
-                    _buildModelOption(context, "Premium Gold", "Sofisticado", Icons.workspace_premium, Colors.amber[800]!, ReceiptStyle.premium),
-                    _buildModelOption(context, "Minimalista", "Design Clean", Icons.circle_outlined, Colors.black, ReceiptStyle.minimal),
+                    _buildModelOption(context, "Tech Dev", "Hacker / Terminal", Icons.terminal, Colors.green, ReceiptStyle.tech),
+
+                    const Divider(height: 30),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Text("Criativos", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                    ),
+                    _buildModelOption(context, "Premium Gold", "Luxo e Sofisticação", Icons.workspace_premium, Colors.amber[800]!, ReceiptStyle.premium),
+                    _buildModelOption(context, "Minimalista", "Design Clean Apple", Icons.circle_outlined, Colors.black, ReceiptStyle.minimal),
                     _buildModelOption(context, "Obras & Construção", "Forte e Visível", Icons.construction, Colors.orange[800]!, ReceiptStyle.construction),
-                    _buildModelOption(context, "Criativo", "Roxo Moderno", Icons.auto_awesome, Colors.purple, ReceiptStyle.creative),
+                    _buildModelOption(context, "Criativo", "Roxo Moderno (Nubank)", Icons.auto_awesome, Colors.purple, ReceiptStyle.creative),
                     _buildModelOption(context, "Saúde & Bem-estar", "Relaxante", Icons.spa, Colors.teal, ReceiptStyle.health),
                     _buildModelOption(context, "Retrô", "Nota Fiscal Antiga", Icons.receipt, Colors.brown, ReceiptStyle.retro),
                     _buildModelOption(context, "Corporativo", "Internacional", Icons.apartment, Colors.red[900]!, ReceiptStyle.corporate),
+
+                    const Divider(height: 30),
+                    Row(children: [
+                      const Icon(Icons.star, color: Colors.orange, size: 20),
+                      const SizedBox(width: 5),
+                      Text("Profissionais (Novo)", style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                    ]),
+                    const SizedBox(height: 10),
+
+                    _buildModelOption(context, "Elegante", "Azul Sereno e Fino", Icons.diamond_outlined, Colors.indigo, ReceiptStyle.prof_elegant),
+                    _buildModelOption(context, "Bold Impact", "Alto Contraste (Preto/Amarelo)", Icons.campaign, Colors.black, ReceiptStyle.prof_bold),
+                    _buildModelOption(context, "Eco Nature", "Sustentável e Verde", Icons.eco, Colors.green[800]!, ReceiptStyle.prof_nature),
+                    _buildModelOption(context, "Arquiteto", "Linhas Técnicas", Icons.architecture, Colors.blueGrey[900]!, ReceiptStyle.prof_architect),
+                    _buildModelOption(context, "Neon Digital", "Futurista Dark", Icons.bolt, Colors.pinkAccent, ReceiptStyle.prof_neon),
+
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -373,18 +367,19 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
   }
 
   Widget _buildModelOption(BuildContext context, String title, String subtitle, IconData icon, Color color, ReceiptStyle style) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E2228) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [BoxShadow(color: Colors.grey.shade100, blurRadius: 4, offset: const Offset(0, 2))],
+        border: Border.all(color: isDark ? Colors.grey[800]! : Colors.grey[200]!),
       ),
       child: ListTile(
         leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: Icon(icon, color: color)),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: () {
           Navigator.pop(context);
@@ -399,7 +394,7 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
 
     String finalDescription = _descriptionController.text;
     if (_isProduct) {
-      finalDescription = "${_qtyController.text}x $_finalDescription";
+      finalDescription = "${_qtyController.text}x $_finalDescription (Un: R\$ ${_unitPriceController.text})";
     }
 
     final receiptData = {
@@ -417,7 +412,6 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
       'unitPrice': _unitPriceController.text,
       'code': _codeController.text,
       'unit': _unitController.text,
-
       'createdAt': DateTime.now().toString(),
     };
 
@@ -437,7 +431,6 @@ class _CreateReceiptPageState extends State<CreateReceiptPage> {
       value: _valueController.text,
       date: _dateController.text,
       style: style,
-
       isProduct: _isProduct,
       qty: _qtyController.text,
       unitPrice: _unitPriceController.text,

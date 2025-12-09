@@ -29,29 +29,23 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
 
       appBar: _selectedIndex == 1
           ? AppBar(
-        toolbarHeight: 50,
+        toolbarHeight: 90,
         title: Image.asset(
           'assets/images/faturaetransparentname.png',
-          height: 100,
+          height: 75,
           fit: BoxFit.contain,
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
         centerTitle: true,
       )
           : AppBar(
         title: Text(
             _selectedIndex == 0 ? "Documentos Gerados" : "Configurações",
-            style: TextStyle(color: Colors.grey[800], fontWeight: FontWeight.bold)
+            style: const TextStyle(fontWeight: FontWeight.bold)
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.grey[800]),
       ),
 
       body: _pages[_selectedIndex],
@@ -59,8 +53,8 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,
-        backgroundColor: Colors.white,
-        indicatorColor: Colors.blue.shade100,
+
+        indicatorColor: const Color(0xFF4C86D9).withOpacity(0.3),
         elevation: 2,
         height: 65,
         destinations: const [
@@ -96,14 +90,7 @@ class HomeContent extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Opacity(
-            opacity: 0.5,
-            child: SizedBox(
-              width: 200,
-              child: Image.asset('assets/images/faturaelogotransp.png'),
-            ),
-          ),
-          const SizedBox(height: 20),
+
           const Text(
             "Toque abaixo para gerar um novo documento",
             style: TextStyle(fontSize: 16, color: Colors.grey),
