@@ -110,7 +110,6 @@ class PdfUtil {
     }
   }
 
-
   static pw.Widget _buildSmartTable(
       bool isProduct, String desc, String qty, String unitPrice, String total,
       {PdfColor headerColor = PdfColors.grey300, PdfColor headerTextColor = PdfColors.black}) {
@@ -120,8 +119,8 @@ class PdfUtil {
           ? ['ITEM / DESCRIÇÃO', 'UN', 'QTD', 'UNIT', 'TOTAL']
           : ['DESCRIÇÃO DO SERVIÇO', 'VALOR TOTAL'],
       data: isProduct
-          ? [[desc, 'UN', qty, 'R\$ $unitPrice', 'R\$ $total']]
-          : [[desc, 'R\$ $total']],
+          ? [[desc, 'UN', qty, unitPrice, total]]
+          : [[desc, total]],
       headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: headerTextColor, fontSize: 9),
       headerDecoration: pw.BoxDecoration(color: headerColor),
       cellStyle: const pw.TextStyle(fontSize: 10),
@@ -154,6 +153,7 @@ class PdfUtil {
     );
   }
 
+
   // 1. SIMPLES
   static pw.Widget _buildSimpleLayout(List<dynamic> a) {
     return pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
@@ -184,7 +184,7 @@ class PdfUtil {
       pw.SizedBox(height: 20),
       _buildSmartTable(a[6], a[2], a[7], a[8], a[3], headerColor: color, headerTextColor: PdfColors.white),
       pw.SizedBox(height: 10),
-      pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text("TOTAL: R\$ ${a[3]}", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: color))),
+      pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text("TOTAL: ${a[3]}", style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: color))),
       pw.SizedBox(height: 20),
       if (a[5] != null) _buildPixArea(a[5]),
       pw.Spacer(),
@@ -205,7 +205,7 @@ class PdfUtil {
       pw.Container(decoration: pw.BoxDecoration(border: pw.Border.all(color: green)), padding: const pw.EdgeInsets.all(10), child:
       pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
         pw.Text(a[6] ? "ITEM: ${a[2]} (x${a[7]})" : "SERVICE: ${a[2]}", style: pw.TextStyle(color: green, font: pw.Font.courier())),
-        pw.Text("TOTAL: R\$ ${a[3]}", style: pw.TextStyle(color: green, fontSize: 18, fontWeight: pw.FontWeight.bold, font: pw.Font.courier())),
+        pw.Text("TOTAL: ${a[3]}", style: pw.TextStyle(color: green, fontSize: 18, fontWeight: pw.FontWeight.bold, font: pw.Font.courier())),
       ])
       ),
       pw.SizedBox(height: 20),
@@ -238,7 +238,7 @@ class PdfUtil {
     return pw.Center(child: pw.Column(mainAxisAlignment: pw.MainAxisAlignment.center, children: [
       pw.Text(a[0].toString().toUpperCase(), style: const pw.TextStyle(letterSpacing: 2, fontSize: 10)),
       pw.SizedBox(height: 40),
-      pw.Text("R\$ ${a[3]}", style: pw.TextStyle(fontSize: 40, fontWeight: pw.FontWeight.bold)),
+      pw.Text("${a[3]}", style: pw.TextStyle(fontSize: 40, fontWeight: pw.FontWeight.bold)),
       pw.SizedBox(height: 10),
       pw.Text("Pago por ${a[1]}", style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey700)),
       pw.SizedBox(height: 40),
@@ -280,7 +280,7 @@ class PdfUtil {
             decoration: pw.BoxDecoration(color: PdfColors.white, borderRadius: pw.BorderRadius.circular(10), boxShadow: const [pw.BoxShadow(blurRadius: 5, color: PdfColors.grey300)]),
             child: pw.Column(children: [
               pw.Text("Valor Total", style: const pw.TextStyle(color: PdfColors.grey, fontSize: 10)),
-              pw.Text("R\$ ${a[3]}", style: pw.TextStyle(color: PdfColors.purple, fontSize: 30, fontWeight: pw.FontWeight.bold)),
+              pw.Text("${a[3]}", style: pw.TextStyle(color: PdfColors.purple, fontSize: 30, fontWeight: pw.FontWeight.bold)),
               pw.Divider(),
               _buildRowLabelValue("Para", a[1]),
               pw.SizedBox(height: 10),
@@ -322,7 +322,7 @@ class PdfUtil {
           pw.Text("DE: ${a[0]}", style: pw.TextStyle(font: pw.Font.courier())),
           pw.Text("PARA: ${a[1]}", style: pw.TextStyle(font: pw.Font.courier())),
           pw.SizedBox(height: 20),
-          pw.Text(a[6] ? "QTD: ${a[7]} x ${a[2]} ......... R\$ ${a[3]}" : "SERV: ${a[2]} ......... R\$ ${a[3]}", style: pw.TextStyle(font: pw.Font.courier())),
+          pw.Text(a[6] ? "QTD: ${a[7]} x ${a[2]} ......... ${a[3]}" : "SERV: ${a[2]} ......... ${a[3]}", style: pw.TextStyle(font: pw.Font.courier())),
           pw.SizedBox(height: 20),
           if (a[5] != null) _buildPixArea(a[5]),
           pw.Spacer(),
@@ -341,7 +341,7 @@ class PdfUtil {
       pw.SizedBox(height: 20),
       _buildSmartTable(a[6], a[2], a[7], a[8], a[3], headerColor: PdfColors.red900, headerTextColor: PdfColors.white),
       pw.SizedBox(height: 20),
-      pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text("Total Due: R\$ ${a[3]}", style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+      pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text("Total Due: ${a[3]}", style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
       if (a[5] != null) pw.Align(alignment: pw.Alignment.centerLeft, child: _buildPixArea(a[5])),
       pw.Spacer(),
       pw.Text(a[4]),
@@ -352,7 +352,7 @@ class PdfUtil {
   static pw.Widget _buildDanfeLayout(String issuer, String client, String desc, String value, String date, String? pix, bool isProduct, String qty, String unitPrice) {
     final operationType = isProduct ? "VENDA DE MERCADORIA" : "PRESTAÇÃO DE SERVIÇO";
     return pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
-      pw.Container(decoration: pw.BoxDecoration(border: pw.Border.all()), height: 60, child: pw.Row(children: [pw.Expanded(flex: 4, child: _buildBox("Emitido por $issuer os PRODUTOS/SERVIÇOS constantes da nota", "", borderRight: true)), pw.Expanded(flex: 1, child: _buildBox("NF-e", "Nº 000.001", alignCenter: true))])),
+      pw.Container(decoration: pw.BoxDecoration(border: pw.Border.all()), height: 60, child: pw.Row(children: [pw.Expanded(flex: 4, child: _buildBox("RECEBEMOS DE $issuer OS PRODUTOS/SERVIÇOS CONSTANTES DA NOTA", "", borderRight: true)), pw.Expanded(flex: 1, child: _buildBox("NF-e", "Nº 000.001", alignCenter: true))])),
       pw.SizedBox(height: 5),
       pw.Container(decoration: pw.BoxDecoration(border: pw.Border.all()), height: 90, child: pw.Row(children: [pw.Expanded(flex: 4, child: pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [pw.Text(issuer.toUpperCase(), style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14)), pw.Spacer(), pw.Text("Natureza da Operação:", style: const pw.TextStyle(fontSize: 6)), pw.Text(operationType, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10))]))), pw.Expanded(flex: 2, child: _buildBox("DANFE", "Documento Auxiliar\nda Nota Fiscal\nEletrônica", alignCenter: true, borderRight: true, borderLeft: true))])),
       pw.SizedBox(height: 5),
@@ -362,6 +362,7 @@ class PdfUtil {
       pw.SizedBox(height: 10),
       pw.Align(alignment: pw.Alignment.centerRight, child: _buildPixArea(pix)),
       pw.Spacer(),
+      pw.Center(child: pw.Text("SEM VALOR FISCAL", style: pw.TextStyle(fontSize: 40, fontWeight: pw.FontWeight.bold, color: PdfColors.grey300))),
     ]);
   }
 
@@ -391,7 +392,7 @@ class PdfUtil {
       pw.SizedBox(height: 20),
       pw.Row(mainAxisAlignment: pw.MainAxisAlignment.end, children: [
         pw.Text("TOTAL: ", style: const pw.TextStyle(fontSize: 12)),
-        pw.Text("R\$ ${a[3]}", style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, color: color)),
+        pw.Text("${a[3]}", style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, color: color)),
       ]),
       if (a[5] != null) pw.Align(alignment: pw.Alignment.centerLeft, child: _buildPixArea(a[5])),
       pw.Spacer(),
@@ -420,7 +421,7 @@ class PdfUtil {
           padding: const pw.EdgeInsets.all(10),
           child: pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
             pw.Text("TOTAL A PAGAR", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-            pw.Text("R\$ ${a[3]}", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 16)),
+            pw.Text("${a[3]}", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 16)),
           ])
       ),
       if (a[5] != null) _buildPixArea(a[5]),
@@ -474,7 +475,7 @@ class PdfUtil {
           pw.SizedBox(height: 20),
           _buildSmartTable(a[6], a[2], a[7], a[8], a[3], headerColor: PdfColors.white, headerTextColor: PdfColors.black),
           pw.SizedBox(height: 20),
-          pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text("TOTAL: R\$ ${a[3]}", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 16, decoration: pw.TextDecoration.underline))),
+          pw.Align(alignment: pw.Alignment.centerRight, child: pw.Text("TOTAL: ${a[3]}", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 16, decoration: pw.TextDecoration.underline))),
           if (a[5] != null) _buildPixArea(a[5]),
           pw.Spacer(),
         ])
