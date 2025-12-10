@@ -11,12 +11,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
 
   final List<Widget> _pages = [
     const HistoryPage(),
-    const HomeContent(),
     const SettingsPage(),
   ];
 
@@ -28,95 +26,85 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = const Color(0xFF4C86D9);
 
-      appBar: _selectedIndex == 1
-          ? AppBar(
-        toolbarHeight: 90,
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 85,
         title: Image.asset(
           'assets/images/faturaetransparentname.png',
-          height: 75,
+          height: 110,
           fit: BoxFit.contain,
+          color: isDark ? Colors.white : null,
         ),
         centerTitle: true,
-      )
-          : AppBar(
-        title: Text(
-            _selectedIndex == 0 ? "Documentos Gerados" : "Configurações",
-            style: const TextStyle(fontWeight: FontWeight.bold)
-        ),
-        centerTitle: true,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
       ),
 
       body: _pages[_selectedIndex],
 
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: _onItemTapped,
-
-        indicatorColor: const Color(0xFF4C86D9).withOpacity(0.3),
-        elevation: 2,
+      floatingActionButton: SizedBox(
         height: 65,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long, color: Color(0xFF4C86D9)),
-            label: 'Histórico',
-          ),
+        width: 65,
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CreateReceiptPage()),
+            );
+          },
+          backgroundColor: primaryColor,
+          elevation: 4,
+          shape: const CircleBorder(),
+          child: const Icon(Icons.add, size: 32, color: Colors.white),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home, color: Color(0xFF4C86D9)),
-            label: 'Início',
-          ),
-
-          NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings, color: Color(0xFF4C86D9)),
-            label: 'Config',
-          ),
-        ],
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8,
+        height: 70,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 10,
+        shadowColor: Colors.black12,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavItem(Icons.receipt_long_rounded, "Histórico", 0, isDark),
+            const SizedBox(width: 40),
+            _buildNavItem(Icons.settings_rounded, "Ajustes", 1, isDark),
+          ],
+        ),
       ),
     );
   }
-}
 
-class HomeContent extends StatelessWidget {
-  const HomeContent({super.key});
+  Widget _buildNavItem(IconData icon, String label, int index, bool isDark) {
+    final isSelected = _selectedIndex == index;
+    final color = isSelected ? const Color(0xFF4C86D9) : (isDark ? Colors.grey[600] : Colors.grey[400]);
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-
-          const Text(
-            "Toque abaixo para gerar um novo documento",
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-          const SizedBox(height: 40),
-
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CreateReceiptPage()),
-              );
-            },
-            icon: const Icon(Icons.add),
-            label: const Text(
-                "NOVO RECIBO",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
-            ),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-              backgroundColor: const Color(0xFF4C86D9),
-              foregroundColor: Colors.white,
-              elevation: 5,
-            ),
-          ),
-        ],
+    return InkWell(
+      onTap: () => _onItemTapped(index),
+      borderRadius: BorderRadius.circular(50),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 24),
+            if (isSelected)
+              Text(
+                  label,
+                  style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)
+              ),
+          ],
+        ),
       ),
     );
   }

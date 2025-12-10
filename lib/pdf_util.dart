@@ -15,7 +15,7 @@ enum ReceiptStyle {
 
 class PdfUtil {
 
-  static Future<void> generateAndShare({
+  static Future<Uint8List> generateBytes({
     required String issuerName,
     required String pixKey,
     required String clientName,
@@ -29,7 +29,6 @@ class PdfUtil {
   }) async {
     final doc = pw.Document();
 
-    // Geração do Pix
     String? pixPayload;
     if (pixKey.isNotEmpty) {
       try {
@@ -72,14 +71,33 @@ class PdfUtil {
             case ReceiptStyle.prof_nature: return _buildProfNature(args);
             case ReceiptStyle.prof_architect: return _buildProfArchitect(args);
             case ReceiptStyle.prof_neon: return _buildProfNeon(args);
-
             default: return _buildSimpleLayout(args);
           }
         },
       ),
     );
 
-    final bytes = await doc.save();
+    return doc.save();
+  }
+
+  static Future<void> generateAndShare({
+    required String issuerName,
+    required String pixKey,
+    required String clientName,
+    required String serviceDescription,
+    required String value,
+    required String date,
+    required ReceiptStyle style,
+    bool isProduct = false,
+    String qty = '1',
+    String unitPrice = '',
+  }) async {
+    final bytes = await generateBytes(
+        issuerName: issuerName, pixKey: pixKey, clientName: clientName,
+        serviceDescription: serviceDescription, value: value, date: date,
+        style: style, isProduct: isProduct, qty: qty, unitPrice: unitPrice
+    );
+
     final fileName = 'Recibo_${clientName.replaceAll(" ", "_")}.pdf';
 
     if (kIsWeb) {
@@ -91,6 +109,7 @@ class PdfUtil {
       await Share.shareXFiles([XFile(file.path)], text: 'Olá $clientName, segue seu documento.');
     }
   }
+
 
   static pw.Widget _buildSmartTable(
       bool isProduct, String desc, String qty, String unitPrice, String total,
@@ -134,7 +153,6 @@ class PdfUtil {
         ])
     );
   }
-
 
   // 1. SIMPLES
   static pw.Widget _buildSimpleLayout(List<dynamic> a) {
@@ -334,7 +352,7 @@ class PdfUtil {
   static pw.Widget _buildDanfeLayout(String issuer, String client, String desc, String value, String date, String? pix, bool isProduct, String qty, String unitPrice) {
     final operationType = isProduct ? "VENDA DE MERCADORIA" : "PRESTAÇÃO DE SERVIÇO";
     return pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
-      pw.Container(decoration: pw.BoxDecoration(border: pw.Border.all()), height: 60, child: pw.Row(children: [pw.Expanded(flex: 4, child: _buildBox("RECEBEMOS DE $issuer OS PRODUTOS/SERVIÇOS CONSTANTES DA NOTA", "", borderRight: true)), pw.Expanded(flex: 1, child: _buildBox("NF-e", "Nº 000.001", alignCenter: true))])),
+      pw.Container(decoration: pw.BoxDecoration(border: pw.Border.all()), height: 60, child: pw.Row(children: [pw.Expanded(flex: 4, child: _buildBox("Emitido por $issuer os PRODUTOS/SERVIÇOS constantes da nota", "", borderRight: true)), pw.Expanded(flex: 1, child: _buildBox("NF-e", "Nº 000.001", alignCenter: true))])),
       pw.SizedBox(height: 5),
       pw.Container(decoration: pw.BoxDecoration(border: pw.Border.all()), height: 90, child: pw.Row(children: [pw.Expanded(flex: 4, child: pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [pw.Text(issuer.toUpperCase(), style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14)), pw.Spacer(), pw.Text("Natureza da Operação:", style: const pw.TextStyle(fontSize: 6)), pw.Text(operationType, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10))]))), pw.Expanded(flex: 2, child: _buildBox("DANFE", "Documento Auxiliar\nda Nota Fiscal\nEletrônica", alignCenter: true, borderRight: true, borderLeft: true))])),
       pw.SizedBox(height: 5),
@@ -348,7 +366,7 @@ class PdfUtil {
   }
 
 
-  // 12. PROFISSIONAL 1: ELEGANT (Azul Sereno e Fontes Finas)
+  // 12. PROFISSIONAL 1: ELEGANT
   static pw.Widget _buildProfElegant(List<dynamic> a) {
     const color = PdfColors.indigo900;
     return pw.Column(children: [
@@ -381,7 +399,7 @@ class PdfUtil {
     ]);
   }
 
-  // 13. PROFISSIONAL 2: BOLD (Preto e Amarelo Forte)
+  // 13. PROFISSIONAL 2: BOLD
   static pw.Widget _buildProfBold(List<dynamic> a) {
     return pw.Column(children: [
       pw.Container(
@@ -411,7 +429,7 @@ class PdfUtil {
     ]);
   }
 
-  // 14. PROFISSIONAL 3: NATURE (Verde e Orgânico)
+  // 14. PROFISSIONAL 3: NATURE
   static pw.Widget _buildProfNature(List<dynamic> a) {
     const green = PdfColors.green800;
     return pw.Column(children: [
@@ -439,7 +457,7 @@ class PdfUtil {
     ]);
   }
 
-  // 15. PROFISSIONAL 4: ARCHITECT (Linhas Finas e Grid)
+  // 15. PROFISSIONAL 4: ARCHITECT
   static pw.Widget _buildProfArchitect(List<dynamic> a) {
     return pw.Container(
         decoration: pw.BoxDecoration(border: pw.Border.all(width: 3)),
@@ -463,7 +481,7 @@ class PdfUtil {
     );
   }
 
-  // 16. PROFISSIONAL 5: NEON (Moderno Digital)
+  // 16. PROFISSIONAL 5: NEON
   static pw.Widget _buildProfNeon(List<dynamic> a) {
     const neon = PdfColors.pink500;
     const dark = PdfColors.blueGrey900;

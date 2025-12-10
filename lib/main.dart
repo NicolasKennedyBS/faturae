@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+
   await Hive.openBox('receipts');
   var settingsBox = await Hive.openBox('settings');
+
   bool initialDarkMode = settingsBox.get('isDarkMode', defaultValue: false);
+
   runApp(FaturaeApp(initialDarkMode: initialDarkMode));
 }
 
@@ -21,11 +25,23 @@ class FaturaeApp extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: Hive.box('settings').listenable(),
       builder: (context, Box box, widget) {
+
         final isDark = box.get('isDarkMode', defaultValue: initialDarkMode);
 
         return MaterialApp(
           title: 'Faturaê',
           debugShowCheckedModeBanner: false,
+
+          locale: const Locale('pt', 'BR'),
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('pt', 'BR'),
+          ],
+
           themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
 
           theme: ThemeData(
@@ -33,14 +49,14 @@ class FaturaeApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(
               seedColor: const Color(0xFF4C86D9),
               brightness: Brightness.light,
-              background: Colors.grey[50],
+              background: const Color(0xFFF5F7FA),
               surface: Colors.white,
             ),
             useMaterial3: true,
             fontFamily: 'Roboto',
-            scaffoldBackgroundColor: Colors.grey[50],
+            scaffoldBackgroundColor: const Color(0xFFF5F7FA),
             appBarTheme: const AppBarTheme(
-              backgroundColor: Colors.white,
+              backgroundColor: Color(0xFFF5F7FA),
               foregroundColor: Colors.black,
               elevation: 0,
             ),
@@ -61,7 +77,7 @@ class FaturaeApp extends StatelessWidget {
             fontFamily: 'Roboto',
             scaffoldBackgroundColor: const Color(0xFF121212),
             appBarTheme: const AppBarTheme(
-              backgroundColor: Color(0xFF1E1E1E),
+              backgroundColor: Color(0xFF121212),
               foregroundColor: Colors.white,
               elevation: 0,
             ),

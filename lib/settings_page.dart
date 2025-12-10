@@ -67,9 +67,9 @@ class _SettingsPageState extends State<SettingsPage> {
               Card(
                 elevation: 0,
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: SwitchListTile(
                   title: const Text("Modo Escuro", style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text("Economiza bateria e descansa a vista"),
                   secondary: Icon(isDark ? Icons.dark_mode : Icons.light_mode),
                   value: isDark,
                   onChanged: (val) {
@@ -77,13 +77,17 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
 
               const Text(
                 "Meus Dados (Padrão)",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
               ),
-              const Text("Preencha aqui para não precisar digitar em todo recibo."),
+              const SizedBox(height: 5),
+              const Text(
+                "Preencha aqui para preencher automaticamente novos recibos.",
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
               const SizedBox(height: 20),
 
               TextField(
@@ -98,12 +102,6 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: 15),
 
-              TextField(
-                controller: _phoneController,
-                decoration: const InputDecoration(labelText: "Telefone / WhatsApp", prefixIcon: Icon(Icons.phone), border: OutlineInputBorder()),
-              ),
-              const SizedBox(height: 20),
-
               SizedBox(
                 height: 50,
                 child: ElevatedButton.icon(
@@ -113,6 +111,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4C86D9),
                     foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ),
@@ -121,15 +120,14 @@ class _SettingsPageState extends State<SettingsPage> {
               const Divider(),
               const SizedBox(height: 20),
 
-              const Text("Gerenciamento", style: TextStyle(fontWeight: FontWeight.bold)),
               ListTile(
-                leading: const Icon(Icons.delete_forever, color: Colors.red),
-                title: const Text("Limpar Histórico de Recibos"),
+                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                title: const Text("Limpar Histórico", style: TextStyle(color: Colors.red)),
                 onTap: _clearHistory,
               ),
 
               const SizedBox(height: 20),
-              const Center(child: Text("Faturaê v1.1.0", style: TextStyle(color: Colors.grey))),
+              const Center(child: Text("Faturaê v1.1.0", style: TextStyle(color: Colors.grey, fontSize: 10))),
             ],
           );
         }
