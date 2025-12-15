@@ -31,7 +31,7 @@ Certifique-se de ter o [Flutter SDK](https://docs.flutter.dev/get-started/instal
 
 1. **Clone o repositório**
    ```bash
-   git clone [https://github.com/SEU-USUARIO/faturae.git](https://github.com/SEU-USUARIO/faturae.git)
+   git clone https://github.com/NicolasKennedyBS/quantovaidar.git
    cd faturae
    ```
 
